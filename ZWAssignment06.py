@@ -8,6 +8,7 @@
 # RRoot,1.1.2030,Created started script
 # RRoot,1.1.2030,Added code to complete assignment 5
 # Zeb W., 22Nov2021,Modified code to complete assignment 6
+# Zeb W., 23Nov2021, Added error handling
 # ---------------------------------------------------------------------------- #
 
 # Data ---------------------------------------------------------------------- #
@@ -52,19 +53,26 @@ class Processor:
         '''
         row = {'Task': str(task_to_add).strip(), 'Priority': str(priority).strip()}
         list_of_rows.append(row)
-        return list_of_rows, 'Success!'
+        return list_of_rows, 'Success! \n'
 
     @staticmethod
-    def remove_data_from_list(list_of_rows, task_to_remove):
+    def remove_data_from_list(list_of_rows, task_to_remove, row_removed=None, status=''):
         '''Remove row from list
 
-        :param task_to_remove: (string) task to remove
         :param list_of_rows: (list) of dictionary rows
+        :param task_to_remove: (string) task to remove
+        :param row_removed: (boolean) determine if row was removed
+        :param status: (string) status of task removal
         '''
         for row in list_of_rows:
             if row["Task"].lower() == task_to_remove.lower():
                 lstTable.remove(row)
-        return list_of_rows, 'Success!'
+                row_removed = True
+            if row_removed == True:
+                status = 'Success!\n'
+            else:
+                status = 'Task not found in list\nIf you want to remove and item, select "2" from the menu,\nAnd enter the task name\n'
+        return list_of_rows, status
     print()
 
     @staticmethod
@@ -91,14 +99,14 @@ class IO:
 
         :return: nothing
         '''
-        print('''
-        Menu of Options
-        1) Add a new Task
-        2) Remove an existing Task
-        3) Save Data to File        
-        4) Reload Data from File
-        5) Exit Program
-        ''')
+        print()
+        print('Menu of Options')
+        print('1) Add a new Task')
+        print('2) Remove an existing Task')
+        print('3) Save Data to File')
+        print('4) Reload Data from File')
+        print('5) Exit Program')
+        print()
 
     @staticmethod
     def input_menu_choice():
@@ -139,7 +147,6 @@ class IO:
         :return: nothing
         '''
         print(optional_message)
-        print()
         input('Press the [Enter] key to continue.')
 
     @staticmethod
@@ -186,10 +193,16 @@ while (True):
         if strChoice.lower() == 'y':
             print()
             lstTable, strStatus = Processor.write_data_to_file(strFileName, lstTable)
-            IO.input_press_to_continue(strStatus)
+            IO.input_press_to_continue(strStatus + '\n')
+        elif strChoice.lower() == 'n':
+            print()
+            IO.input_press_to_continue('Save Cancelled!\n')
         else:
             print()
-            IO.input_press_to_continue('Save Cancelled!')
+            print('That is not a choice!')
+            print('If you want to save, select "3" from the menu,')
+            print('And enter either "y" or "n"')
+            IO.input_press_to_continue()
         continue  # to show the menu
 
     elif strChoice == '4':  # Reload Data from File
@@ -199,16 +212,34 @@ while (True):
         if strChoice.lower() == 'y':
             print()
             lstTable, strStatus = Processor.read_data_from_file(strFileName, lstTable)
-            IO.input_press_to_continue(strStatus)
+            IO.input_press_to_continue(strStatus + '\n')
+        elif strChoice.lower() == 'n':
+            print()
+            IO.input_press_to_continue('File Reload Cancelled! \n')
         else:
             print()
-            IO.input_press_to_continue('File Reload Cancelled!')
+            print('That is not a choice!')
+            print('If you want to reload the file, select "4" from the menu,')
+            print('And enter either "y" or "n"')
+            IO.input_press_to_continue()
         continue  # to show the menu
 
     elif strChoice == '5':  # Exit Program
-        print('Goodbye!')
-        break  # and Exit
+        strChoice = IO.input_yes_no_choice('Are you sure you want to exit? (y/n): ')
+        if strChoice.lower() == 'y':
+            print()
+            print('Goodbye!')
+            break  # and Exit
+        elif strChoice.lower() == 'n':
+            print()
+            IO.input_press_to_continue('Exit Cancelled! \n')
+        else:
+            print()
+            print('That is not a choice!')
+            print('If you want to exit the program, select "5" from the menu,')
+            print('And enter either "y" or "n"')
+            IO.input_press_to_continue()
+        continue
 
     else:
-        print("That is not a choice!")
-
+        print('That is not a choice!')
